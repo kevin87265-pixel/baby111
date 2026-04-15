@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 培育系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --pink:#f472b6;--pink-light:#fce7f3;--pink-dark:#be185d;
+  --gold:#f59e0b;--gold-light:#fef3c7;
+  --green:#34d399;--green-light:#d1fae5;
+  --bg:#fff9fb;--text:#1f1235;--muted:#6b7280;--border:#fce7f3;
+}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.app{max-width:480px;margin:0 auto;padding:16px 16px 80px;}
+
+.encourage-banner{background:linear-gradient(135deg,#fce7f3 0%,#ede9fe 60%,#dbeafe 100%);border-radius:20px;padding:16px 18px;margin-bottom:12px;border:1.5px solid #f9a8d4;position:relative;overflow:hidden;}
+.encourage-banner::after{content:'💗';position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:30px;opacity:0.18;}
+.encourage-label{font-size:10px;font-weight:800;color:var(--pink-dark);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+.encourage-text{font-size:13px;font-weight:700;color:#4c1d95;line-height:1.6;padding-right:34px;}
+
+.header{background:white;border-radius:18px;padding:14px;margin-bottom:11px;border:1.5px solid var(--border);}
+.baby-label{font-size:10px;font-weight:800;color:var(--pink-dark);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;}
+.baby-age{font-size:19px;font-weight:900;margin-bottom:1px;}
+.baby-age span{color:var(--pink);}
+.baby-sub{font-size:11px;color:var(--muted);margin-bottom:11px;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+.stat-card{background:var(--bg);border-radius:11px;padding:8px;text-align:center;border:1px solid rgba(244,114,182,0.15);}
+.stat-icon{font-size:14px;margin-bottom:2px;}
+.stat-val{font-size:14px;font-weight:900;}
+.stat-lbl{font-size:10px;color:var(--muted);font-weight:700;}
+
+.coin-bar{background:white;border-radius:15px;padding:11px 14px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;border:1.5px solid var(--gold-light);}
+.coin-left{display:flex;align-items:center;gap:9px;}
+.coin-icon{font-size:22px;}
+.coin-num{font-size:22px;font-weight:900;color:var(--gold);}
+.coin-lbl{font-size:11px;color:var(--muted);font-weight:700;}
+.redeem-btn{background:linear-gradient(135deg,#f59e0b,#f97316);color:white;border:none;border-radius:10px;padding:7px 13px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;}
+
+.nav-tabs{display:flex;background:white;border-radius:12px;padding:3px;gap:3px;margin-bottom:12px;border:1.5px solid var(--border);}
+.nav-tab{flex:1;padding:7px 2px;border:none;border-radius:9px;background:transparent;font-size:11px;font-weight:800;color:var(--muted);cursor:pointer;font-family:'Nunito',sans-serif;text-align:center;transition:all 0.2s;}
+.nav-tab.active{background:linear-gradient(135deg,#fce7f3,#ede9fe);color:var(--pink-dark);}
+.panel{display:none;}
+.panel.active{display:block;}
+.section-title{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;padding-left:2px;}
+
+.progress-section{background:white;border-radius:14px;padding:13px;margin-bottom:11px;border:1.5px solid var(--border);}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.progress-title{font-size:13px;font-weight:800;}
+.progress-count{font-size:12px;color:var(--muted);font-weight:700;}
+.progress-bar-bg{background:#f3f4f6;border-radius:999px;height:8px;overflow:hidden;margin-bottom:5px;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,#f472b6,#a78bfa);border-radius:999px;transition:width 0.4s;}
+.progress-msg{font-size:11px;color:var(--muted);}
+
+.task-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.task-card{background:white;border-radius:13px;padding:11px 13px;display:flex;align-items:center;gap:10px;border:1.5px solid var(--border);cursor:pointer;transition:transform 0.15s,border-color 0.2s;}
+.task-card:hover{transform:translateY(-1px);border-color:var(--pink);}
+.task-card.done{background:#f0fdf4;border-color:#86efac;}
+.task-emoji{font-size:20px;width:38px;height:38px;background:var(--pink-light);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.task-card.done .task-emoji{background:var(--green-light);}
+.task-info{flex:1;min-width:0;}
+.task-name{font-size:13px;font-weight:800;margin-bottom:1px;}
+.task-card.done .task-name{color:#16a34a;text-decoration:line-through;}
+.task-desc{font-size:11px;color:var(--muted);line-height:1.35;}
+.task-reward{display:flex;align-items:center;gap:3px;background:var(--gold-light);border-radius:8px;padding:4px 8px;font-size:12px;font-weight:900;color:#92400e;flex-shrink:0;}
+.task-card.done .task-reward{background:var(--green-light);color:#166534;}
+.check-circle{width:19px;height:19px;border-radius:50%;border:2px solid #d1d5db;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:transparent;transition:all 0.2s;}
+.task-card.done .check-circle{background:#22c55e;border-color:#22c55e;color:white;}
+
+.rep-btn{display:flex;flex-direction:column;align-items:center;gap:1px;background:linear-gradient(135deg,#fce7f3,#ede9fe);border:1.5px solid #f9a8d4;border-radius:10px;padding:5px 8px;cursor:pointer;font-family:'Nunito',sans-serif;flex-shrink:0;transition:transform 0.12s;min-width:46px;}
+.rep-btn:hover{transform:scale(1.07);}
+.rep-btn:active{transform:scale(0.94);}
+.rep-plus{font-size:15px;line-height:1;color:var(--pink-dark);font-weight:900;}
+.rep-count{font-size:10px;font-weight:900;color:var(--pink-dark);}
+.rep-tag{display:inline-flex;align-items:center;background:#fce7f3;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;color:var(--pink-dark);margin-left:4px;}
+
+/* REWARDS */
+.reward-tier-bar{display:flex;gap:6px;margin-bottom:14px;}
+.reward-tier-card{flex:1;background:white;border-radius:12px;padding:10px 8px;text-align:center;border:1.5px solid var(--border);}
+.reward-tier-icon{font-size:18px;margin-bottom:3px;}
+.reward-tier-name{font-size:10px;font-weight:800;color:var(--muted);}
+.reward-tier-val{font-size:13px;font-weight:900;color:var(--text);}
+.reward-tier-sub{font-size:10px;color:var(--muted);}
+.reward-cat-header{font-size:13px;font-weight:900;margin:14px 0 8px;display:flex;align-items:center;gap:7px;}
+.reward-cat-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;}
+.rewards-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.reward-card{background:white;border-radius:13px;padding:12px 10px;text-align:center;border:1.5px solid var(--border);cursor:pointer;transition:transform 0.15s,border-color 0.2s;position:relative;}
+.reward-card:hover{transform:translateY(-2px);border-color:var(--gold);}
+.reward-card.owned{border-color:#86efac;background:#f0fdf4;}
+.reward-card.small-r{border-color:#fde68a;}
+.reward-card.mid-r{border-color:#c4b5fd;}
+.reward-card.big-r{border-color:#f9a8d4;}
+.reward-emoji{font-size:25px;margin-bottom:4px;}
+.reward-name{font-size:12px;font-weight:800;margin-bottom:5px;line-height:1.3;}
+.reward-cost{display:inline-flex;align-items:center;gap:3px;background:var(--gold-light);border-radius:7px;padding:3px 7px;font-size:11px;font-weight:900;color:#92400e;}
+.reward-card.owned .reward-cost{background:var(--green-light);color:#166534;}
+.owned-badge{position:absolute;top:6px;right:6px;background:#22c55e;color:white;font-size:9px;font-weight:800;border-radius:5px;padding:2px 5px;}
+.tier-label{position:absolute;top:6px;left:6px;font-size:9px;font-weight:800;border-radius:4px;padding:2px 5px;}
+.tier-s{background:#fef9c3;color:#854d0e;}
+.tier-m{background:#ede9fe;color:#4c1d95;}
+.tier-l{background:#fce7f3;color:#be185d;}
+
+/* LOG */
+.log-section{background:white;border-radius:14px;padding:13px;margin-bottom:10px;border:1.5px solid var(--border);}
+.log-head{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+.log-icon{font-size:18px;}
+.log-title{font-size:13px;font-weight:900;flex:1;}
+.log-next{font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;background:var(--pink-light);color:var(--pink-dark);white-space:nowrap;}
+.log-next.ok{background:var(--green-light);color:#166634;}
+.log-empty{font-size:12px;color:var(--muted);text-align:center;padding:7px 0;}
+.log-table{width:100%;border-collapse:collapse;}
+.log-table th{font-size:10px;font-weight:800;color:var(--muted);text-align:left;padding:0 0 5px;border-bottom:1px solid var(--border);}
+.log-table th:last-child{text-align:right;}
+.log-table td{font-size:12px;padding:5px 0;border-bottom:1px solid #fdf2f8;}
+.log-table tr:last-child td{border-bottom:none;}
+.log-table td:last-child{text-align:right;}
+.log-idx{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:var(--pink-light);color:var(--pink-dark);border-radius:50%;font-size:9px;font-weight:900;}
+.log-time{font-weight:800;}
+.log-ago{font-size:11px;color:var(--muted);}
+
+/* MILESTONE */
+.milestone-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.milestone-row:last-child{border-bottom:none;}
+.milestone-dot{width:10px;height:10px;border-radius:50%;background:#d1d5db;flex-shrink:0;}
+.milestone-dot.passed{background:var(--green);}
+.milestone-dot.current{background:var(--pink);box-shadow:0 0 0 4px rgba(244,114,182,0.25);}
+.milestone-info{flex:1;}
+.milestone-name{font-size:13px;font-weight:800;}
+.milestone-age{font-size:11px;color:var(--muted);}
+.milestone-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--pink-light);color:var(--pink-dark);flex-shrink:0;}
+.milestone-badge.passed{background:var(--green-light);color:#166534;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1f1235;color:white;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;opacity:0;transition:transform 0.3s,opacity 0.3s;z-index:100;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.coin-anim{position:fixed;pointer-events:none;font-size:19px;z-index:200;animation:floatUp 1s forwards;}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-80px) scale(1.4)}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="encourage-banner">
+    <div class="encourage-label">今日給媽咪的話 💌</div>
+    <div class="encourage-text" id="encourageText">載入中...</div>
+  </div>
+
+  <div class="header">
+    <div class="baby-label">11 培育系統</div>
+    <div class="baby-age" id="ageDisplay">計算中...</div>
+    <div class="baby-sub">出生日期：2025年11月9日</div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-val" id="daysOld">-</div><div class="stat-lbl">天數</div></div>
+      <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-val" id="streakCount">0</div><div class="stat-lbl">連續天</div></div>
+      <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-val" id="totalDone">0</div><div class="stat-lbl">已完成</div></div>
+    </div>
+  </div>
+
+  <div class="coin-bar">
+    <div class="coin-left">
+      <div class="coin-icon">🪙</div>
+      <div><div class="coin-num" id="coinDisplay">0</div><div class="coin-lbl">金幣</div></div>
+    </div>
+    <button id="vaultBtn" class="redeem-btn" onclick="(state.vault&&state.vault.length>0)?switchTab('vault'):switchTab('rewards')">兌換獎勵 ✨</button>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('tasks')">📋 任務</button>
+    <button class="nav-tab" onclick="switchTab('log')">📒 紀錄</button>
+    <button class="nav-tab" onclick="switchTab('rewards')">🎁 獎勵</button>
+    <button class="nav-tab" onclick="switchTab('vault')">💜 寶庫</button>
+    <button class="nav-tab" onclick="switchTab('milestone')">🌱 里程</button>
+  </div>
+
+  <div class="panel active" id="panel-tasks">
+    <div class="progress-section">
+      <div class="progress-header"><div class="progress-title">今日進度</div><div class="progress-count" id="progressCount">0/0</div></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-msg" id="progressMsg">完成任務獲得金幣吧！</div>
+    </div>
+    <div class="section-title">每日任務</div>
+    <div class="task-list" id="taskList"></div>
+  </div>
+
+  <div class="panel" id="panel-log"><div id="logContent"></div></div>
+  <div class="panel" id="panel-rewards"><div id="rewardsContent"></div></div>
+  <div class="panel" id="panel-vault">
+    <div class="section-title">媽咪寶庫 💜</div>
+    <div id="vaultContent"></div>
+  </div>
+  <div class="panel" id="panel-milestone">
+    <div class="section-title">成長里程碑</div>
+    <div id="milestoneList"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const BIRTH = new Date('2025-11-09');
+const TODAY = new Date();
+
+// ══════════════════════════════════════════
+// 365句媽咪鼓勵語（每天不重樣）
+// ══════════════════════════════════════════
+const ENCOURAGEMENTS = [
+"每一次哄睡、每一口奶奶，都是你對11滿滿的愛。媽咪辛苦了 💕",
+"你不需要是完美的媽媽，你只需要是11的媽媽，這樣就足夠了 🌸",
+"睡眠不足、手忙腳亂，但你還是撐過來了。每一天的你都在悄悄變強 💪",
+"11很幸運，有你這樣愛他的媽媽。記得也要好好愛自己 🍰",
+"你的懷抱是11最安全的地方。謝謝你每天都在 🤍",
+"今天可能很累，但你做到的比你以為的還要多 ✨",
+"照顧一個小生命不容易，但你每天都做到了，值得犒賞自己 🎂",
+"11一天一天長大，都是你的功勞，這份愛是最珍貴的禮物 🌟",
+"有些事沒做到完美也沒關係，媽咪的愛已經夠了 💗",
+"你今天每一個「又哄睡了」「又餵奶了」，都是英雄事蹟 🦸‍♀️",
+"不用和別人比，你和11之間的默契是獨一無二的 🌷",
+"偶爾充電一下，充飽電的媽咪才能給11最好的能量 ☀️",
+"你的付出11感受得到，即使他現在還不會說出來 🥹",
+"生命中最美的事之一，就是看著自己的孩子慢慢長大 🌈",
+"今天有好好吃飯嗎？媽咪也要照顧好自己喔 🍱",
+"不管昨天多難熬，今天的你又重新開始了，這就是媽媽的超能力 💫",
+"11的第一個微笑、第一聲笑聲，都因為你而存在 😊",
+"你以為自己只是在哄睡，其實是在給11最深的安全感 🌙",
+"每一個失眠的夜，都累積成你和11之間最深的連結 🤝",
+"今天也謝謝你，選擇了繼續愛下去 💝",
+"有時候什麼都沒做好，但還是活過了這一天——這樣就夠了 🍃",
+"當媽媽是世界上最難的工作，但你每天都在上班，超級厲害 👑",
+"11看到你的臉就會安心，那是任何人都無法取代的 💞",
+"今天給自己一點時間，喝杯好喝的，你值得 🧋",
+"你以為自己沒做什麼，但11的世界裡你就是全部 🌍",
+"哄了多少次睡、餵了多少次奶——都算數，都值得被看見 🪙",
+"辛苦不代表你做錯了什麼，辛苦只是代表你愛得很用力 💓",
+"媽咪加油！今天的11比昨天又長大了一點點 📈",
+"不完美的媽媽加上滿滿的愛，就是最好的媽媽 🥰",
+"你每天都在寫11的故事，這個故事很美 📖",
+"今天11有沒有讓你笑了？那個笑是你最好的禮物 😄",
+"你付出的每一分每一秒，11都記在心裡，即使他還不會說 🫶",
+"累了就休息，休息不是放棄，是為了繼續愛 🛌",
+"你比自己以為的更堅強，每天都在證明這件事 🌻",
+"謝謝你把最好的自己給了11，也記得留一點給自己 🎀",
+"媽媽的愛是最安靜卻最有力量的事 🕊️",
+"今天的你已經做得很好了，明天繼續加油 🌤️",
+"11的每一天都因為有你而更溫暖 🔥",
+"你在哺育一個生命，也在重新認識自己——真的很了不起 🦋",
+"不要忘記，你也是一個需要被照顧的人 🫂",
+"今天有沒有做一件讓自己開心的事？你值得快樂 🎈",
+"你的愛不需要轟轟烈烈，每一個輕拍都算 🌿",
+"11每次看著你的眼神，裡面全都是愛 👀",
+"你在最疲憊的時候還是選擇繼續，這種勇氣很偉大 🏅",
+"今天不管發生什麼，你都是很棒的媽媽 ⭐",
+"有你在，11的世界是彩色的 🎨",
+"謝謝你每天都在，這件事比你想的重要很多 🙏",
+"你所做的一切，有一天11都會明白 🌱",
+"累的時候記得喝水，照顧好自己才能照顧好11 💧",
+"今天的你，是11心裡最美的風景 🌅",
+"你不是一個人，11每天都在和你一起努力 👶",
+"媽咪，你已經超越了自己無數次，今天也會的 🚀",
+"你給11的不只是食物和睡眠，更是滿滿的安全感 🏠",
+"有些辛苦是看不見的，但你自己知道，這就夠了 💭",
+"今天給自己一個擁抱，你真的很辛苦也很厲害 🤗",
+"11最愛的聲音是你的聲音，你知道嗎？ 🎵",
+"你做的每一件小事，都在替11的未來打地基 🏗️",
+"不管今天有沒有睡好，你昨天已經做到了，今天也會 💤",
+"你的溫柔是11學習愛的第一堂課 📚",
+"謝謝你選擇了這條不容易卻很美的路 🛤️",
+"今天想吃什麼就去吃，你值得被好好餵飽 🍽️",
+"你的堅持，11以後一定會感謝你 🌸",
+"有時候媽媽也可以哭，哭完再站起來就好 🌧️🌈",
+"每一個被你哄睡的夜晚，都是一份愛的紀錄 📓",
+"今天的疲憊是昨天勇氣的證明 💎",
+"11的笑容是你最大的加油站 😄",
+"你不只在養育11，你也在養育一個更強大的自己 🌳",
+"今天有沒有讓自己喘口氣？記得要 🌬️",
+"你是11的第一個老師，也是最重要的那個 🍎",
+"謝謝你每天都帶著愛醒來 ☀️",
+"今天想說什麼就說，媽媽的感受也很重要 🗣️",
+"你比你自己評價自己的要好太多了 🏆",
+"11在你懷裡的每一秒都是幸福 🫶",
+"今天不管幾點才睡著，你都很勇敢 🌙",
+"你的愛是無條件的，這在世界上是最珍貴的東西 💍",
+"謝謝你在最難的時候選擇堅持 🔑",
+"今天找個人說說話，媽咪也需要被聽見 💬",
+"你讓11感受到了這個世界的溫度 🌡️",
+"每一次你唱歌給11聽，都是一段記憶在慢慢形成 🎶",
+"今天可以對自己溫柔一點，你不是機器 🤍",
+"你是11的英雄，也是自己的英雄 🦸‍♀️",
+"有你陪著11長大，這件事本身就是最美的事 🌷",
+"今天的努力，明天的11會更健康快樂 🌿",
+"你擁有的耐心比你以為的多很多 🕰️",
+"謝謝你每一次的「再一次」，再哄一次、再餵一次 🔄",
+"11的眼睛裡，你是全世界 🌎",
+"今天先把自己照顧好，其他的等一下再說 💗",
+"你在用愛蓋一棟房子，11住在裡面最安全 🏡",
+"謝謝你沒有放棄，哪怕今天再難 🌟",
+"今天想哭就哭，眼淚是勇敢的人才有資格流的 💧",
+"你的溫柔讓11知道這個世界是安全的 🌍",
+"每一天都是你和11之間的新故事 📰",
+"今天不管做了什麼，你都值得一個好好的晚餐 🍜",
+"你陪著11走過的每一步，都算數 👣",
+"謝謝你每次抱緊11的時候都這麼用力 🤗",
+"今天的你，明天的11會記得 💭",
+"你是世界上對11最重要的人，沒有之一 ❤️",
+"今天有給自己一點點時間嗎？你需要的 ⏰",
+"你用愛翻譯了11每一個哭聲，這需要很多很多的心 💝",
+"謝謝你在半夜也還在 🌃",
+"今天想去哪就去，帶著11看看這個世界 🗺️",
+"你的每一天都是給11最好的禮物 🎁",
+"媽咪，你做得比你以為的好 ✅",
+"今天不管有沒有完成所有事，你都很棒 🌈",
+"你讓11感受到愛，這是最重要的一件事 💞",
+"謝謝你每天帶著笑容面對11，哪怕心裡有時候很累 😊",
+"今天好好吃一頓，你的身體在幫你撐起這個家 🍴",
+"你比任何人都更了解11需要什麼 🧭",
+"11睡著的臉是你最值得珍藏的畫面 😴",
+"今天想說「我不行了」的時候，記得你每次都行了 💪",
+"你在最脆弱的時候還是選擇了愛，這是最大的勇氣 🦁",
+"謝謝你把11照顧得這麼好 🌻",
+"今天給自己打個分，不管幾分都是滿分 💯",
+"你不需要每天都很厲害，只要每天都在就夠了 🌱",
+"11每一次看見你都覺得安心，你知道嗎 💙",
+"今天的辛苦是愛的形狀 ❤️‍🔥",
+"謝謝你把最溫柔的那面留給11 🌸",
+"今天想休息就休息，你工作已經夠努力了 🛋️",
+"你在做的事情，是世界上最重要的工作 🌍",
+"11有你，就什麼都有了 🌟",
+"今天不管幾點起床，你都是在給11最好的開始 ☀️",
+"謝謝你一直在，在每一個11需要你的時刻 🕯️",
+"你是11學習愛的起點 💕",
+"今天給自己一點獎勵，你絕對值得 🏅",
+"你的疲憊是真實的，你的愛也是真實的 💗",
+"謝謝你為了11每天都在成長 📈",
+"今天好好看看11，記住這個時刻 📸",
+"你每一天都做到了昨天覺得做不到的事 🌄",
+"11以後一定很驕傲，他的媽媽這麼厲害 🥹",
+"今天想要什麼就說出來，媽媽的願望也很重要 💫",
+"謝謝你把最好的時光給了11 ⏳",
+"你每一次哄睡，都是一份給11的禮物 🎀",
+"今天不管幾分鐘的空檔，都先留給自己 🌿",
+"你給了11一個家，不只是房間，而是溫度 🔥",
+"謝謝你今天也選擇了愛 💝",
+"今天的你在11眼裡是最亮的星 ⭐",
+"你比你知道的更重要 🌷",
+"今天想吃甜點就去吃，甜甜的心情傳給11 🍰",
+"謝謝你帶著11看這個世界 🌏",
+"你每一天都在創造11最初的記憶 📷",
+"今天不管發生什麼，明天都是新的一天 🌅",
+"你是11的第一個家 🏠",
+"謝謝你在累的時候還是溫柔的 🌸",
+"今天給自己一個微笑，你已經做得很好了 😊",
+"你的愛正在悄悄把11塑造成一個好人 🌱",
+"今天的每一分鐘，都在和11建立連結 🧵",
+"謝謝你選擇了這個角色，然後每天都盡力扮演 🎭",
+"你不是超人，但你做的事情超人也做不到 🦸‍♀️",
+"今天想說什麼就說，不用什麼都一個人扛 💬",
+"你的溫柔讓11知道被愛是什麼感覺 💞",
+"謝謝你每天都帶著11感受這個世界 🌈",
+"今天有休息一下嗎？記得你也需要被照顧 🫶",
+"你在做一件很偉大的事，哪怕現在看起來只是哄睡 🌙",
+"11最安心的地方就是你的懷抱，永遠都會是 🤗",
+"今天給自己一點掌聲，你真的做到了 👏",
+"謝謝你每天都重新愛一次 💗",
+"你是11生命裡最重要的作者 ✍️",
+"今天想去哪就去，帶著11出門看看陽光 🌤️",
+"你做的每一件小事，都是大事 🔑",
+"謝謝你把愛化成行動，每一天 💪",
+"今天不管幾點睡，你昨天撐過來了，今天也會 🌟",
+"你讓11的世界充滿了溫度和顏色 🎨",
+"今天給自己一個願望，然後慢慢去實現 🌙",
+"謝謝你在疲憊中還是那麼溫柔 🌸",
+"你每天都在成為更好的媽媽，不是因為你不夠好，是因為你一直在進步 📈",
+"今天的11比昨天又多認識了一點這個世界，都是你的功勞 🌍",
+"謝謝你，今天也在 💝",
+"你的懷抱是11的第一個家，也是最重要的家 🏠",
+"今天想要什麼就說出來，你的需求也很重要 💬",
+"你帶著11學會了愛，這是最美的事 💕",
+"謝謝你每天都願意重新開始 ☀️",
+"今天不管做了幾件事，你都贏了 🏆",
+"你是11每天早上最想看見的臉 👀",
+"今天有多累，都值得你好好的 💗",
+"謝謝你選擇了這條充滿愛的路 🛤️",
+"你每天都在把11的世界變得更好 🌱",
+"今天先把自己照顧好，其他的一步一步來 🫶",
+"你給了11最重要的東西：你的存在 🌟",
+"謝謝你在每個夜晚都還是在 🌙",
+"今天的你是昨天的你的延續，每天都在越來越好 📆",
+"你讓11知道，這個世界有人愛他 💞",
+"今天想要休息就去休息，沒有人比你更需要 😌",
+"謝謝你把11帶來這個世界，並且這麼愛他 🌸",
+"你是11的安全基地，永遠都是 🏡",
+"今天的辛苦是最值得的投資 💎",
+"謝謝你每天用心觀察11的變化 👁️",
+"你記錄下來的每一個瞬間都是珍寶 📸",
+"今天讓自己有一點點喘息的空間 🌬️",
+"你用愛保護著11，這件事永遠不會過時 🛡️",
+"謝謝你在最難的時候也沒有放手 🤝",
+"今天想跟誰說說話就打電話，媽媽也需要朋友 📞",
+"你是11第一個愛上的人 💗",
+"今天不管完成了什麼，都比不做要好 ✅",
+"謝謝你把愛放在每一個細節裡 🔍",
+"你每次抱著11的樣子，是這世界上最美的畫面 🖼️",
+"今天有沒有告訴自己：你做得很好 💬",
+"謝謝你為了11每天都努力 💪",
+"你的故事還沒寫完，而且越來越精彩 📖",
+"今天給自己一個深呼吸，然後繼續 🌬️",
+"你是最了解11的人，沒有之一 💯",
+"謝謝你把家變成11最安心的地方 🏠",
+"今天有沒有讓自己笑一下？你的笑11最愛 😄",
+"你在最疲憊的時候仍然選擇溫柔，這需要很大的力量 🌊",
+"謝謝你每一天都帶著愛出發 💝",
+"今天的你是明天的11的靠山 🏔️",
+"你是11認識這個世界的方式 🌍",
+"今天想要什麼就去追，你有資格 🏃‍♀️",
+"謝謝你在每個深夜都還是在 🌃",
+"你不是一個人在照顧11，你是11的全部世界 🌎",
+"今天不管幾點才能休息，你已經是英雄了 🏅",
+"你讓11感受到的愛，是他這一生最重要的禮物 🎁",
+"謝謝你今天也撐過去了 💗",
+"你每天給11的，遠遠超過你自己知道的 🌟",
+"今天給自己一個承諾：好好照顧媽咪自己 💕",
+"謝謝你選擇了這段旅程，它很美 🌸",
+"你是11每一天最重要的人 ❤️",
+"今天有沒有做一件讓自己開心的小事？現在去做 🎈",
+"謝謝你把最真實的愛給了11 💝",
+"你每天都在完成一件了不起的事：讓11感受到愛 🌻",
+"今天先給自己一杯好喝的，媽咪辛苦了 ☕",
+"你是11成長路上最美的見證者 👁️",
+"謝謝你每天都帶著11往前走 👣",
+"今天的你，值得所有美好的事 🌈",
+"你的愛是11最堅固的盔甲 🛡️",
+"謝謝你在每個需要你的時刻都出現了 🫶",
+"今天讓自己有點任性，你值得 😌",
+"你用每天的堅持，替11鋪出了一條路 🛤️",
+"謝謝你讓這個世界因為11更美麗 🌷",
+"今天不管發生什麼，你愛11這件事永遠不變 💗",
+"你帶著11長大，也在讓自己變得更完整 🌱",
+"謝謝你每次都選擇再一次 🔄",
+"今天的11很幸福，因為有你 💞",
+"你是這個故事裡最重要的角色 📖",
+"謝謝你，媽咪，今天也很棒 🌟",
+"今天有沒有為自己感到驕傲？你應該要有 🏆",
+"你每天都在創造11童年裡最重要的記憶 🧸",
+"謝謝你把家填滿了溫度 🔥",
+"今天不管多累，你明天還是會站起來的，因為你一直都是 💪",
+"你的愛沒有條件，也沒有終點 ♾️",
+"謝謝你讓11擁有一個這麼好的開始 🌅",
+"今天想笑就笑，你的笑是給11最好的禮物 😊",
+"你帶著11感受這個世界，這件事很了不起 🌍",
+"謝謝你在所有的不確定裡還是那麼確定地愛著11 💗",
+"今天你值得一頓好好的飯，好好犒賞自己 🍽️",
+"你讓11的每一天都有意義 🌟",
+"謝謝你每天都在，就算只是陪著 🪑",
+"今天不管有多難，你已經在面對它了，這就是勇氣 🦁",
+"你是11最好的媽媽，不是之一，就是唯一 ❤️",
+"謝謝你，每一天 🌸",
+"今天又是新的一天，你又一次選擇了愛 💝",
+"你是11的太陽，讓他的世界有光 ☀️",
+"謝謝你把所有的愛都給了11，也記得留一點給自己 🪞",
+"今天的你，已經超越了很多很多人 🏅",
+"你的柔軟是一種力量，別忘記 🌊",
+"謝謝你每天帶著11看世界 👶🌍",
+"今天先好好休息，明天繼續愛 💤",
+"你不完美，但你是最好的那個媽媽 💯",
+"謝謝你讓11感受到了最純粹的愛 💕",
+"今天有沒有對自己說聲謝謝？你值得被自己感謝 🙏",
+"你在做的事情，比任何工作都更有意義 🌱",
+"謝謝你今天也帶著愛出現在11的生命裡 💝",
+"今天的你是11永遠最愛的媽媽 ❤️",
+"你每一天的選擇都在替11打造一個更美好的未來 🌅",
+"謝謝你，今天，明天，每一天 🌟",
+"今天先把自己裝滿，才能繼續給 🫗",
+"你是11人生中第一個愛他的人，這是最神聖的事 💗",
+"謝謝你讓11從出生就被愛包圍 🌸",
+"今天你又做到了，明天也會的 💪",
+"你不需要每天都很好，只要每天都是你就夠了 🌻",
+"謝謝你在有你的每一天讓11更幸福 💞",
+"今天給自己一點點的好，你值得 🎀",
+"你是這個世界上最了解11的人 🧭",
+"謝謝你選擇了愛，每一天都是 💝",
+"今天媽咪辛苦了，你是最棒的 🏆",
+"你讓11的每一天都充滿了安全感，這是最重要的事 🔑",
+"謝謝你把最好的時光給了11，也記得留一點給自己 ⏳",
+"今天的你已經是11眼中最完美的媽媽 😊",
+"你用每天的堅持，讓11的世界更穩固 🏗️",
+"謝謝你在每個深夜的堅持 🌃",
+"今天不管結果如何，你付出了就值得被肯定 ✨",
+"你是11生命裡最美好的開始 🌱",
+"謝謝你把愛活成了日常 💕",
+"今天給自己一個大大的擁抱，你真的很棒 🤗",
+"你每天都在為11創造最好的條件 🌟",
+"謝謝你在所有的疲憊裡還是選擇了溫柔 🌸",
+"今天的你，是11最需要的那個人 💗",
+"你帶著11長大，這是一輩子最美的事業 🌻",
+"謝謝你每天都帶著愛醒來 ☀️",
+"今天媽咪記得照顧好自己，11需要一個充滿能量的媽媽 💪",
+"你給11的愛，是他一生最大的財富 💎",
+"謝謝你讓11知道這個世界很值得愛 🌍",
+"今天不管發生什麼，你都已經做到最好了 ⭐",
+"你是11的全世界，而你自己也值得擁有全世界 🌎",
+"謝謝你每天把愛化成行動 💝",
+"今天先給自己一個笑容，你已經贏了 😊",
+"你在用愛把11變成一個有愛的人，這是最美好的傳承 💞",
+"謝謝你，媽咪，11很幸運 🌸",
+"今天的你，值得最好的 🌟",
+"你每天都在做世界上最重要的事 💗",
+"謝謝你選擇了每天繼續愛下去 💕",
+"今天給自己的獎勵，是你應得的 🎁",
+"你是11認識這個世界的第一道光 ☀️",
+"謝謝你，今天也在 🌸",
+"你不是在等完美的時機，你每天都是完美的媽媽 💯",
+"今天的你，在11的心裡永遠是最溫暖的存在 ❤️",
+"謝謝你每一天都把愛放在第一位 💝",
+"今天繼續加油，明天的11因為今天的你而更幸福 🌅",
+"你是11的英雄，也是你自己的英雄 🦸‍♀️",
+"謝謝你為了愛每天都在超越自己 💪",
+"今天媽咪加油！你永遠是最棒的 ❤️",
+];
+
+function getDailyEncouragement() {
+  const day = Math.floor((TODAY - BIRTH) / 86400000);
+  const idx = ((day % ENCOURAGEMENTS.length) + ENCOURAGEMENTS.length) % ENCOURAGEMENTS.length;
+  return ENCOURAGEMENTS[idx];
+}
+
+// ══════════════════════════════════════════
+// AGE
+// ══════════════════════════════════════════
+function getAgeInfo() {
+  const diffMs = TODAY - BIRTH;
+  const diffDays = Math.floor(diffMs / 86400000);
+  const diffMonths = (TODAY.getFullYear()-BIRTH.getFullYear())*12+(TODAY.getMonth()-BIRTH.getMonth());
+  const diffYears = TODAY.getFullYear()-BIRTH.getFullYear();
+  const adjYears = (TODAY<new Date(TODAY.getFullYear(),BIRTH.getMonth(),BIRTH.getDate()))?diffYears-1:diffYears;
+  const adjMonths = Math.max(0,diffMonths);
+  let ageText,stage,stageKey;
+  if(diffDays<0){ageText=`還有 ${-diffDays} 天出生`;stage='等待中 🌸';stageKey='prenatal';}
+  else if(diffDays<=30){ageText=diffDays===0?'今天出生！':`出生第 ${diffDays} 天`;stage='新生兒期 🍼';stageKey='newborn';}
+  else if(adjMonths<6){ageText=`${adjMonths} 個月大`;stage='嬰兒前期 👶';stageKey='infant_early';}
+  else if(adjMonths<12){ageText=`${adjMonths} 個月大`;stage='嬰兒後期 🌟';stageKey='infant_late';}
+  else if(adjYears<2){const m=adjMonths-12;ageText=`1 歲${m>0?' '+m+' 個月':''}`;stage='學步兒 🐣';stageKey='toddler_1';}
+  else if(adjYears<3){ageText='2 歲';stage='幼兒期 🌈';stageKey='toddler_2';}
+  else{ageText=`${adjYears} 歲`;stage='兒童期 🧒';stageKey='child';}
+  return{diffDays,adjMonths,adjYears,ageText,stage,stageKey};
+}
+
+// ══════════════════════════════════════════
+// TASKS
+// ══════════════════════════════════════════
+// 副食品在所有階段都顯示（已確認11在吃）
+const TASK_DB = {
+  prenatal:[
+    {id:'p1',emoji:'🧘',name:'媽媽胎教音樂',desc:'播放古典或自然音樂30分鐘',reward:5},
+    {id:'p2',emoji:'📖',name:'讀故事書',desc:'輕聲朗讀繪本給寶貝聽',reward:5},
+    {id:'p3',emoji:'🌿',name:'散步呼吸新鮮空氣',desc:'輕鬆散步15-20分鐘',reward:5},
+    {id:'p4',emoji:'💊',name:'補充營養品',desc:'按時服用孕期營養品',reward:8},
+    {id:'p5',emoji:'✍️',name:'寫孕期日記',desc:'記錄今天的感受與期待',reward:6},
+  ],
+  newborn:[
+    {id:'n_milk',emoji:'🍼',name:'餵11吃奶奶',desc:'每次餵奶都記錄，按時哺乳',reward:10,repeatable:true,logKey:'milk'},
+    {id:'n_solid',emoji:'🥣',name:'餵11吃副食品',desc:'每次副食品記錄，吃多少都算！',reward:12,repeatable:true,logKey:'solid'},
+    {id:'n_bath',emoji:'🛁',name:'洗澡時間',desc:'輕柔幫11洗澡，保持清潔',reward:8},
+    {id:'n_skin',emoji:'🤱',name:'肌膚接觸',desc:'袋鼠式護理30分鐘，增進親子連結',reward:10},
+    {id:'n_play',emoji:'🎠',name:'陪11玩',desc:'搖鈴、床鈴互動，讓11笑一笑',reward:8},
+    {id:'n_dance',emoji:'💃',name:'跳舞給11看',desc:'放音樂跳舞，刺激11的視覺和情緒',reward:8},
+    {id:'n_talk',emoji:'💬',name:'跟11講話',desc:'說說今天的事，11最愛聽你的聲音',reward:6},
+    {id:'n_sleep',emoji:'😴',name:'哄睡',desc:'哼歌搖睡，每次成功都有獎',reward:6,repeatable:true,logKey:'sleep'},
+    {id:'n_data',emoji:'📊',name:'記錄成長數據',desc:'量體重、記錄排便次數',reward:5},
+  ],
+  infant_early:[
+    {id:'ie_milk',emoji:'🍼',name:'餵11吃奶奶',desc:'每次餵奶都記錄，補充充足營養',reward:10,repeatable:true,logKey:'milk'},
+    {id:'ie_solid',emoji:'🥣',name:'餵11吃副食品',desc:'每次副食品記錄，拒絕也沒關係繼續加油',reward:12,repeatable:true,logKey:'solid'},
+    {id:'ie_song',emoji:'🎵',name:'唱兒歌互動',desc:'唱3首以上兒歌，觀察11的反應',reward:8},
+    {id:'ie_vis',emoji:'🌈',name:'視覺刺激訓練',desc:'用黑白圖卡或彩色玩具刺激視覺',reward:8},
+    {id:'ie_tummy',emoji:'💪',name:'趴趴時間',desc:'讓11趴著訓練頸部力量10分鐘',reward:10},
+    {id:'ie_play',emoji:'🎠',name:'陪11玩',desc:'搖鈴、軟積木、輕拍互動',reward:8},
+    {id:'ie_dance',emoji:'💃',name:'跳舞給11看',desc:'放音樂跳舞，11最愛看媽咪動起來',reward:8},
+    {id:'ie_talk',emoji:'💬',name:'跟11講話',desc:'描述眼前的東西給11聽，語言刺激很重要',reward:6},
+    {id:'ie_bath',emoji:'🛁',name:'洗澡時間',desc:'輕柔幫11洗澡',reward:8},
+    {id:'ie_read',emoji:'📖',name:'親子共讀',desc:'讀圖畫書，描述畫面給11聽',reward:6},
+    {id:'ie_log',emoji:'🌡️',name:'健康記錄',desc:'記錄體溫、飲食、睡眠狀況',reward:5},
+    {id:'ie_sleep',emoji:'😴',name:'哄睡',desc:'輕拍搖籃、哼歌，每次成功都有獎',reward:8,repeatable:true,logKey:'sleep'},
+  ],
+  infant_late:[
+    {id:'il_milk',emoji:'🍼',name:'餵11吃奶奶',desc:'每次餵奶記錄，持續補充',reward:10,repeatable:true,logKey:'milk'},
+    {id:'il_solid',emoji:'🥣',name:'餵11吃副食品',desc:'每次嘗試新食材都記錄！',reward:12,repeatable:true,logKey:'solid'},
+    {id:'il_grab',emoji:'🪀',name:'抓握練習',desc:'讓11抓各種不同質感玩具',reward:8},
+    {id:'il_talk2',emoji:'🗣️',name:'說話互動',desc:'多對11說話，等待回應',reward:8},
+    {id:'il_play',emoji:'🎠',name:'陪11玩',desc:'躲貓貓、輕搖玩具，讓11哈哈大笑',reward:8},
+    {id:'il_dance',emoji:'💃',name:'跳舞給11看',desc:'唱歌跳舞，11最愛看媽咪動起來',reward:8},
+    {id:'il_talk',emoji:'💬',name:'跟11講話',desc:'叫11的名字、說日常對話',reward:6},
+    {id:'il_bath',emoji:'🛁',name:'洗澡時間',desc:'玩水超開心！幫11好好洗個澡',reward:8},
+    {id:'il_music',emoji:'🎶',name:'音樂律動',desc:'隨音樂輕搖11，培養節奏感',reward:8},
+    {id:'il_photo',emoji:'📸',name:'拍攝成長紀錄',desc:'拍下今天的可愛瞬間',reward:5},
+    {id:'il_sleep',emoji:'😴',name:'哄睡',desc:'輕搖入睡，每次成功都有獎',reward:8,repeatable:true,logKey:'sleep'},
+  ],
+  toddler_1:[
+    {id:'t1_milk',emoji:'🍼',name:'餵11吃奶奶',desc:'睡前或按時補充奶奶',reward:8,repeatable:true,logKey:'milk'},
+    {id:'t1_solid',emoji:'🥣',name:'餵11吃副食品',desc:'每餐記錄一次，吃多吃少都加油！',reward:12,repeatable:true,logKey:'solid'},
+    {id:'t1_walk',emoji:'👣',name:'學步練習',desc:'扶著走路，練習平衡10-15分鐘',reward:12},
+    {id:'t1_play',emoji:'🎠',name:'陪11玩',desc:'玩球、積木、推推車，盡情探索',reward:8},
+    {id:'t1_dance',emoji:'💃',name:'跳舞給11看',desc:'放兒歌跳舞，引導11跟著律動',reward:8},
+    {id:'t1_talk',emoji:'💬',name:'跟11講話',desc:'問11問題，練習模仿說話',reward:6},
+    {id:'t1_read',emoji:'📚',name:'指字閱讀',desc:'指著書上圖案說名字5分鐘',reward:8},
+    {id:'t1_art',emoji:'🎨',name:'塗鴉時間',desc:'提供安全蠟筆自由塗鴉',reward:10},
+    {id:'t1_bath',emoji:'🛁',name:'洗澡時間',desc:'幫11洗香香，玩水超開心',reward:8},
+    {id:'t1_out',emoji:'🌳',name:'戶外探索',desc:'到公園玩沙或觀察自然',reward:10},
+    {id:'t1_sleep',emoji:'😴',name:'哄睡',desc:'說故事或輕拍入睡，每次成功都有獎',reward:10,repeatable:true,logKey:'sleep'},
+  ],
+  toddler_2:[
+    {id:'t2_solid',emoji:'🥣',name:'餵11吃副食品',desc:'每餐好好吃，記錄每次進食',reward:10,repeatable:true,logKey:'solid'},
+    {id:'t2_talk',emoji:'🗣️',name:'說話練習',desc:'鼓勵說完整句子，耐心聆聽',reward:10},
+    {id:'t2_play',emoji:'🎠',name:'陪11玩',desc:'角色扮演、拼圖、積木一起玩',reward:8},
+    {id:'t2_dance',emoji:'💃',name:'跳舞給11看',desc:'放兒歌一起跳舞，培養韻律感',reward:8},
+    {id:'t2_chat',emoji:'💬',name:'跟11講話',desc:'問11今天開心嗎？練習表達情緒',reward:6},
+    {id:'t2_puzzle',emoji:'🧩',name:'拼圖遊戲',desc:'玩4-6片拼圖，培養邏輯',reward:10},
+    {id:'t2_art',emoji:'🖌️',name:'創意美術',desc:'水彩或黏土自由創作',reward:10},
+    {id:'t2_sport',emoji:'🚴',name:'大肌肉活動',desc:'跑步、跳躍、攀爬遊戲20分鐘',reward:10},
+    {id:'t2_bath',emoji:'🛁',name:'洗澡時間',desc:'幫11洗澡，準備舒服睡覺',reward:8},
+    {id:'t2_social',emoji:'👫',name:'社交遊戲',desc:'與同齡孩子一起玩，練習分享',reward:12},
+    {id:'t2_sleep',emoji:'😴',name:'哄睡',desc:'睡前故事後輕拍入睡',reward:10,repeatable:true,logKey:'sleep'},
+  ],
+  child:[
+    {id:'c_solid',emoji:'🥣',name:'餵11吃副食品',desc:'好好用餐，記錄每次進食狀況',reward:10,repeatable:true,logKey:'solid'},
+    {id:'c_read',emoji:'📖',name:'閱讀時間',desc:'自主閱讀或親子共讀20分鐘',reward:10},
+    {id:'c_play',emoji:'🎠',name:'陪11玩',desc:'桌遊、積木、扮家家酒，全心陪伴',reward:8},
+    {id:'c_dance',emoji:'💃',name:'跳舞給11看',desc:'一起隨音樂動起來',reward:8},
+    {id:'c_talk',emoji:'💬',name:'跟11講話',desc:'聊今天發生了什麼，讓11說說看',reward:6},
+    {id:'c_write',emoji:'✏️',name:'寫字/畫畫練習',desc:'練習筆畫或自由創作',reward:10},
+    {id:'c_sport',emoji:'🏃',name:'戶外運動',desc:'跑步、騎車或球類活動30分鐘',reward:12},
+    {id:'c_game',emoji:'🎮',name:'益智遊戲',desc:'桌遊、積木或邏輯遊戲30分鐘',reward:10},
+    {id:'c_bath',emoji:'🛁',name:'洗澡時間',desc:'洗香香準備睡覺',reward:8},
+    {id:'c_emo',emoji:'🤗',name:'情緒表達練習',desc:'聊聊今天發生了什麼，表達感受',reward:8},
+    {id:'c_help',emoji:'🧹',name:'小小幫手',desc:'讓11幫忙簡單家事培養責任感',reward:10},
+    {id:'c_sleep',emoji:'😴',name:'哄睡',desc:'陪伴入睡，每次成功都有獎',reward:8,repeatable:true,logKey:'sleep'},
+  ],
+};
+
+// ══════════════════════════════════════════
+// REWARDS — 3類每類10項
+// 一天約 200-250 金幣
+// 小獎 ≤250（每日）  中獎 250-1250（5天）  大獎 1250+（兩週3500）
+// ══════════════════════════════════════════
+const REWARD_CATS = [
+  {
+    key:'food', label:'美食享受', icon:'🍽️', bg:'#ffedd5', color:'#9a3412',
+    items:[
+      {id:'f1', emoji:'🧋', name:'喝一杯最愛的飲料', cost:200},
+      {id:'f2', emoji:'🍰', name:'吃一塊蛋糕甜點', cost:300},
+      {id:'f3', emoji:'🍦', name:'吃最愛的冰淇淋', cost:200},
+      {id:'f4', emoji:'🍱', name:'買一個高級便當', cost:400},
+      {id:'f5', emoji:'🍜', name:'點外送吃想吃的', cost:500},
+      {id:'f6', emoji:'🥐', name:'悠閒早午餐一次', cost:800},
+      {id:'f7', emoji:'🎂', name:'下午茶好好享受', cost:1200},
+      {id:'f8', emoji:'🍣', name:'去吃喜歡的料理', cost:1600},
+      {id:'f9', emoji:'🫕', name:'火鍋吃到飽一次', cost:2400},
+      {id:'f10', emoji:'🥂', name:'和朋友吃一頓大餐', cost:3600},
+    ]
+  },
+  {
+    key:'out', label:'出門享受', icon:'🌸', bg:'#fce7f3', color:'#be185d',
+    items:[
+      {id:'o1', emoji:'☕', name:'和朋友喝咖啡聊天', cost:500},
+      {id:'o2', emoji:'🎬', name:'和朋友去看電影', cost:1000},
+      {id:'o3', emoji:'💅', name:'去做美甲美容', cost:1400},
+      {id:'o4', emoji:'✂️', name:'去剪頭髮換造型', cost:1400},
+      {id:'o5', emoji:'🛁', name:'去做臉部保養療程', cost:1600},
+      {id:'o6', emoji:'💆', name:'去做按摩放鬆', cost:1800},
+      {id:'o7', emoji:'🛍️', name:'和朋友逛街購物', cost:2000},
+      {id:'o8', emoji:'🌸', name:'和閨蜜出門敘舊一整天', cost:2400},
+      {id:'o9', emoji:'🎡', name:'和朋友出遊半天', cost:3000},
+      {id:'o10', emoji:'🚗', name:'來一趟一日小旅行', cost:7000},
+    ]
+  },
+  {
+    key:'treat', label:'犒賞媽咪', icon:'🎀', bg:'#ede9fe', color:'#4c1d95',
+    items:[
+      {id:'tr1', emoji:'💄', name:'買一支喜歡的保養品', cost:1200},
+      {id:'tr2', emoji:'👗', name:'買一件喜歡的衣服', cost:2000},
+      {id:'tr3', emoji:'👟', name:'買一雙喜歡的鞋', cost:2400},
+      {id:'tr4', emoji:'💍', name:'買一件喜歡的飾品', cost:2800},
+      {id:'tr5', emoji:'🎨', name:'報名一堂藝術或手作課', cost:3600},
+      {id:'tr6', emoji:'🧴', name:'買一整套喜歡的保養', cost:4000},
+      {id:'tr7', emoji:'🧘', name:'報名一堂喜歡的課', cost:1600},
+      {id:'tr8', emoji:'🌟', name:'給自己一天完全自由', cost:3000},
+      {id:'tr9', emoji:'🚂', name:'來一趟小旅行', cost:7000},
+      {id:'tr10', emoji:'🎭', name:'買演唱會或表演的票', cost:4000},
+    ]
+  },
+];
+
+const MILESTONES = [
+  {name:'出生',ageMonths:0,emoji:'👶'},
+  {name:'第一次微笑',ageMonths:2,emoji:'😊'},
+  {name:'趴著抬頭',ageMonths:3,emoji:'💪'},
+  {name:'翻身',ageMonths:4,emoji:'🔄'},
+  {name:'坐起來',ageMonths:6,emoji:'🪑'},
+  {name:'爬行',ageMonths:8,emoji:'🐛'},
+  {name:'站立扶物',ageMonths:9,emoji:'🏋️'},
+  {name:'說第一個字',ageMonths:10,emoji:'🗣️'},
+  {name:'學步走路',ageMonths:12,emoji:'👣'},
+  {name:'說兩個字詞',ageMonths:18,emoji:'💬'},
+  {name:'跑步跳躍',ageMonths:24,emoji:'🏃'},
+  {name:'說完整句子',ageMonths:30,emoji:'📢'},
+  {name:'自己穿衣服',ageMonths:36,emoji:'👕'},
+];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+function getStorage() {
+  try {
+    const d=JSON.parse(localStorage.getItem('baby11_v3')||'{}');
+    return{coins:d.coins||0,doneTasks:d.doneTasks||{},sleepCounts:d.sleepCounts||{},timeLogs:d.timeLogs||{},ownedRewards:d.ownedRewards||[],vault:d.vault||[],streak:d.streak||0,lastDate:d.lastDate||'',totalDone:d.totalDone||0};
+  } catch{return{coins:0,doneTasks:{},sleepCounts:{},timeLogs:{},ownedRewards:[],vault:[],streak:0,lastDate:'',totalDone:0};}
+}
+function saveStorage(d){try{localStorage.setItem('baby11_v3',JSON.stringify(d));}catch{}}
+
+let state=getStorage();
+const info=getAgeInfo();
+const todayKey=TODAY.toISOString().slice(0,10);
+
+// 清除舊的 localStorage 版本
+['baby11_data','baby11_v2'].forEach(k=>localStorage.removeItem(k));
+
+// 每天重置任務紀錄（sleepCounts 和 timeLogs 只保留今天）
+if(!state.doneTasks[todayKey])state.doneTasks[todayKey]=[];
+if(!state.sleepCounts[todayKey])state.sleepCounts[todayKey]={};
+// 清除非今天的 sleepCounts
+Object.keys(state.sleepCounts).forEach(k=>{if(k!==todayKey)delete state.sleepCounts[k];});
+// timeLogs 只保留今天的記錄
+if(state.timeLogs){
+  Object.keys(state.timeLogs).forEach(logKey=>{
+    state.timeLogs[logKey]=(state.timeLogs[logKey]||[]).filter(ts=>ts.slice(0,10)===todayKey);
+  });
+}
+saveStorage(state);
+
+function getTasks(){return TASK_DB[info.stageKey]||TASK_DB['newborn'];}
+function getRegularTasks(){return getTasks().filter(t=>!t.repeatable);}
+
+// ══════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════
+function render() {
+  document.getElementById('encourageText').textContent=getDailyEncouragement();
+  const tasks=getTasks(),reg=getRegularTasks(),done=state.doneTasks[todayKey]||[];
+  document.getElementById('ageDisplay').innerHTML=`<span>${info.ageText}</span>　${info.stage}`;
+  document.getElementById('daysOld').textContent=Math.max(0,info.diffDays);
+  document.getElementById('streakCount').textContent=state.streak||0;
+  document.getElementById('totalDone').textContent=state.totalDone||0;
+  document.getElementById('coinDisplay').textContent=state.coins;
+  const vaultCount=(state.vault||[]).length;
+  document.getElementById('vaultBtn').textContent=vaultCount>0?`媽咪寶庫 💜 ${vaultCount}`:'兌換獎勵 ✨';
+
+  const doneReg=done.filter(id=>reg.find(t=>t.id===id));
+  const pct=reg.length>0?Math.round(doneReg.length/reg.length*100):0;
+  document.getElementById('progressCount').textContent=`${doneReg.length}/${reg.length}`;
+  document.getElementById('progressFill').style.width=pct+'%';
+  const msgs=['完成任務獲得金幣吧！','繼續加油！','快完成了！','今日任務全部完成！太棒了！🎉'];
+  document.getElementById('progressMsg').textContent=msgs[pct===0?0:pct<50?1:pct<100?2:3];
+
+  document.getElementById('taskList').innerHTML=tasks.map(t=>{
+    const isDone=done.includes(t.id);
+    if(t.repeatable){
+      const cnt=(state.sleepCounts[todayKey]&&state.sleepCounts[todayKey][t.id])||0;
+      return `<div class="task-card" style="border-color:#f9a8d4;">
+        <div class="task-emoji">${t.emoji}</div>
+        <div class="task-info">
+          <div class="task-name">${t.name}<span class="rep-tag">每次有獎</span></div>
+          <div class="task-desc">${t.desc}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <div class="task-reward">🪙${t.reward}</div>
+          <button class="rep-btn" onclick="addRep('${t.id}',${t.reward},'${t.logKey||''}')">
+            <span class="rep-plus">+</span>
+            <span class="rep-count">${cnt>0?cnt+'次':'記錄'}</span>
+          </button>
+        </div>
+      </div>`;
+    }
+    return `<div class="task-card ${isDone?'done':''}" onclick="toggleTask('${t.id}',${t.reward})">
+      <div class="task-emoji">${t.emoji}</div>
+      <div class="task-info"><div class="task-name">${t.name}</div><div class="task-desc">${t.desc}</div></div>
+      <div class="task-reward">🪙${t.reward}</div>
+      <div class="check-circle">${isDone?'✓':''}</div>
+    </div>`;
+  }).join('');
+
+  // 獎勵面板（可重複兌換，不顯示已兌換狀態）
+  let rhtml='';
+  REWARD_CATS.forEach(cat=>{
+    rhtml+=`<div class="reward-cat-header">${cat.icon} ${cat.label} <span class="reward-cat-badge" style="background:${cat.bg};color:${cat.color}">${cat.items.length}項</span></div><div class="rewards-grid">`;
+    rhtml+=cat.items.map(r=>{
+      return `<div class="reward-card" onclick="redeemReward('${r.id}',${r.cost},'${r.name}')">
+        <div class="reward-emoji">${r.emoji}</div>
+        <div class="reward-name">${r.name}</div>
+        <div class="reward-cost">🪙 ${r.cost}</div>
+      </div>`;
+    }).join('');
+    rhtml+='</div>';
+  });
+  document.getElementById('rewardsContent').innerHTML=rhtml;
+
+  // 寶庫面板
+  renderVault();
+
+  document.getElementById('milestoneList').innerHTML=MILESTONES.map(m=>{
+    const passed=info.adjMonths>m.ageMonths,current=info.adjMonths===m.ageMonths;
+    return `<div class="milestone-row">
+      <div class="milestone-dot ${passed?'passed':current?'current':''}"></div>
+      <div class="milestone-info"><div class="milestone-name">${m.emoji} ${m.name}</div><div class="milestone-age">${m.ageMonths===0?'出生時':m.ageMonths<12?`約 ${m.ageMonths} 個月`:`約 ${Math.floor(m.ageMonths/12)} 歲`}</div></div>
+      <div class="milestone-badge ${passed?'passed':''}">${passed?'已達成':current?'現在':'期待中'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// ACTIONS
+// ══════════════════════════════════════════
+function toggleTask(id,reward){
+  const done=state.doneTasks[todayKey],idx=done.indexOf(id);
+  if(idx===-1){done.push(id);state.coins+=reward;state.totalDone=(state.totalDone||0)+1;showCoinAnim(reward);showToast(`+${reward} 金幣！很棒！🎉`);}
+  else{done.splice(idx,1);state.coins=Math.max(0,state.coins-reward);showToast('取消完成');}
+  saveStorage(state);render();
+}
+
+function addRep(id,reward,logKey){
+  if(!state.sleepCounts[todayKey])state.sleepCounts[todayKey]={};
+  if(!state.timeLogs)state.timeLogs={};
+  const key=logKey||id;
+  if(!state.timeLogs[key])state.timeLogs[key]=[];
+  state.timeLogs[key].unshift(new Date().toISOString());
+  if(state.timeLogs[key].length>50)state.timeLogs[key]=state.timeLogs[key].slice(0,50);
+  state.sleepCounts[todayKey][id]=(state.sleepCounts[todayKey][id]||0)+1;
+  state.coins+=reward;state.totalDone=(state.totalDone||0)+1;
+  saveStorage(state);render();showCoinAnim(reward);
+  const cnt=state.sleepCounts[todayKey][id];
+  const toasts={milk:`餵奶第${cnt}次！+${reward}金幣 🍼`,solid:`副食品第${cnt}次！+${reward}金幣 🥣`,sleep:`哄睡第${cnt}次！+${reward}金幣 😴✨`};
+  showToast(toasts[logKey]||`+${reward}金幣！第${cnt}次 🎉`);
+}
+
+function redeemReward(id,cost,name,icon){
+  if(!state.vault)state.vault=[];
+  if(state.coins<cost){showToast(`金幣不足！還需要 ${cost-state.coins} 枚 🪙`);return;}
+  // find emoji from reward cats
+  let emoji='🎁';
+  REWARD_CATS.forEach(cat=>cat.items.forEach(r=>{if(r.id===id)emoji=r.emoji;}));
+  const vKey=id+'_'+Date.now();
+  state.coins-=cost;
+  state.vault.push({vKey,id,name,emoji,redeemedAt:new Date().toISOString()});
+  saveStorage(state);render();renderVault();
+  showToast(`已放入媽咪寶庫：${name} 💜`);
+}
+
+function useVaultItem(vKey){
+  if(!state.vault)state.vault=[];
+  const idx=state.vault.findIndex(v=>v.vKey===vKey);
+  if(idx===-1)return;
+  const item=state.vault[idx];
+  state.vault.splice(idx,1);
+  saveStorage(state);render();renderVault();
+  showToast(`已使用：${item.name} ✅`);
+}
+
+function renderVault(){
+  if(!state.vault)state.vault=[];
+  const el=document.getElementById('vaultContent');
+  if(!el)return;
+  if(state.vault.length===0){
+    el.innerHTML=`<div style="text-align:center;padding:32px 0;">
+      <div style="font-size:40px;margin-bottom:12px;">💜</div>
+      <div style="font-size:14px;font-weight:800;color:var(--muted)">寶庫是空的</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px">去獎勵商店兌換後，<br>獎勵會放在這裡等你使用</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML=`<div style="margin-bottom:10px;font-size:12px;color:var(--muted);font-weight:700;">點擊「使用」代表已享受，從寶庫移除 ✨</div>`+
+  state.vault.map(item=>{
+    const d=new Date(item.redeemedAt);
+    const dateStr=`${d.getMonth()+1}/${d.getDate()}`;
+    return `<div style="background:white;border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;border:1.5px solid #e9d5ff;margin-bottom:8px;">
+      <div style="font-size:26px;width:42px;height:42px;background:#ede9fe;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${item.emoji}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:800;margin-bottom:2px;">${item.name}</div>
+        <div style="font-size:11px;color:var(--muted)">兌換於 ${dateStr}</div>
+      </div>
+      <button onclick="useVaultItem('${item.vKey}')" style="background:linear-gradient(135deg,#a78bfa,#f472b6);color:white;border:none;border-radius:9px;padding:7px 13px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;flex-shrink:0;">使用 ✓</button>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// LOG
+// ══════════════════════════════════════════
+function fmt2(n){return String(n).padStart(2,'0');}
+function fmtTime(iso){const d=new Date(iso);return`${fmt2(d.getHours())}:${fmt2(d.getMinutes())}`;}
+function fmtDate(iso){const d=new Date(iso);return`${d.getMonth()+1}/${d.getDate()}`;}
+function todayStr(){return fmtDate(new Date().toISOString());}
+function timeAgo(iso){
+  const diff=Math.floor((Date.now()-new Date(iso))/60000);
+  if(diff<1)return'剛剛';if(diff<60)return`${diff}分前`;
+  const h=Math.floor(diff/60),m=diff%60;return m>0?`${h}h${m}m前`:`${h}小時前`;
+}
+function nextTimeStr(iso,mins){
+  const d=new Date(new Date(iso).getTime()+mins*60000);
+  return`${fmt2(d.getHours())}:${fmt2(d.getMinutes())}`;
+}
+
+function renderLogSection(title,icon,logKey,intervalMins){
+  if(!state.timeLogs)state.timeLogs={};
+  const logs=state.timeLogs[logKey]||[];
+  const latest=logs[0];
+  let nextHtml='';
+  if(latest&&intervalMins){
+    const minSince=Math.floor((Date.now()-new Date(latest))/60000);
+    const left=intervalMins-minSince;
+    if(left<=0){nextHtml=`<span class="log-next ok">現在可以餵囉</span>`;}
+    else{nextHtml=`<span class="log-next">下次建議 ${nextTimeStr(latest,intervalMins)}</span>`;}
+  }
+  const rows=logs.slice(0,12).map((ts,i)=>{
+    const isToday=fmtDate(ts)===todayStr();
+    return`<tr><td><span class="log-idx">${i+1}</span></td><td><span class="log-time">${fmtTime(ts)}</span> <span style="font-size:10px;color:var(--muted)">${isToday?'今天':fmtDate(ts)}</span></td><td><span class="log-ago">${timeAgo(ts)}</span></td></tr>`;
+  }).join('');
+  return`<div class="log-section">
+    <div class="log-head"><span class="log-icon">${icon}</span><span class="log-title">${title}</span>${nextHtml}</div>
+    ${logs.length===0
+      ?`<div class="log-empty">還沒有紀錄，按任務的 + 開始記錄</div>`
+      :`<table class="log-table"><thead><tr><th>#</th><th>時間</th><th style="text-align:right">距現在</th></tr></thead><tbody>${rows}</tbody></table>`}
+  </div>`;
+}
+
+function renderLog(){
+  document.getElementById('logContent').innerHTML=
+    renderLogSection('餵11吃奶奶','🍼','milk',180)+
+    renderLogSection('餵11吃副食品','🥣','solid',null)+
+    renderLogSection('哄睡紀錄','😴','sleep',null);
+}
+
+function switchTab(tab){
+  const tabs=['tasks','log','rewards','vault','milestone'];
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+tab));
+  if(tab==='log')renderLog();
+  if(tab==='vault')renderVault();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+function showCoinAnim(amount){
+  const el=document.createElement('div');
+  el.className='coin-anim';el.textContent=`🪙+${amount}`;
+  el.style.left=(Math.random()*60+20)+'%';el.style.bottom='80px';
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1000);
+}
+
+render();
+renderVault();
+</script>
+</body>
+</html>
